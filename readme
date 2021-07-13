@@ -1,0 +1,13 @@
+1. Regex pattern 
+2. create object
+    2.1 create game rules object
+    2.2 create content oject
+3. create api
+    3.1 create get all game rules api
+    3.2 create get all content api
+4. create frontend
+    4.1 create table of Contents
+    4.2 create chapters
+    4.3 create search
+5. create tests & pipeline
+
