@@ -25,7 +25,7 @@ const readRules = () => {
   }
 }
 
-// menu list
+// chapter list
 const readContents = () => {
   try {
     const data = fs.readFileSync('gameRules.txt', 'utf8')
