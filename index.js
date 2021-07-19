@@ -2,60 +2,61 @@
 const fs = require('fs')
 const express = require('express')
 const app = express()
+const cors = require('cors')
+
+app.use(cors())
 
 // regex pattern
 const readRules = () => {
-  try {
-    const data = fs.readFileSync('gameRules.txt', 'utf8')
-    const gameRules = data.split('Glossary')[1]
-    const regEx = /^[0-9]*\.*[0-9]\.h*.*[\n\r].*/gm
-    const found = gameRules.match(regEx)
-    const rules = []
-    found.forEach((f) => {
-      const parts = f.split(' ')
-      const contents = parts.slice(1, parts.length).join(' ')
-      rules.push({
-        id: parts[0],
-        content: contents
-      })
+  // get rules pattern
+  const data = fs.readFileSync('gameRules.txt', 'utf8')
+  const gameRules = data.split('Glossary')[1]
+  const regEx = /^[0-9]*\.*[0-9]\.s*.*[\n\r].*/gm
+  const found = gameRules.match(regEx)
+
+  // get chapter pattern
+  const chapterRegex = /^[0-9]*\.\s.*/gm
+  const foundChapters = gameRules.match(chapterRegex)
+
+  const Chapters = []
+  foundChapters.forEach((c) => {
+    const parts = c.split(' ')
+    const contents = parts.slice(1, parts.length).join(' ')
+    Chapters.push({
+      id: parts[0],
+      content: contents,
+      rules: []
     })
-    return rules
-  } catch (e) {
-    console.log('Error:', e.stack)
-  }
+  })
+
+  foundChapters.forEach(c => {
+    const chapterParts = c.split('.')
+    found.forEach(r => {
+      const ruleParts = r.split(' ')
+      const numbers = ruleParts[0].split('.')
+      const contents = ruleParts.slice(1, ruleParts.length).join(' ')
+      if (chapterParts[0] === numbers[0]) {
+        const matchingChapter = Chapters.find((c) => c.id === (numbers[0] + '.'))
+        matchingChapter.rules.push({
+          id: ruleParts[0],
+          content: contents
+        })
+      }
+    })
+  })
+  return Chapters
 }
 
-// chapter list
-const readContents = () => {
-  try {
-    const data = fs.readFileSync('gameRules.txt', 'utf8')
-    const rules = data.split('Glossary')[0]
-    const regEx = /^[0-9]*\.*[0-9]\.h*.*/gm
-    const found = rules.match(regEx)
-    const chapter = []
-    found.forEach((m) => {
-      const parts = m.split(' ')
-      const ruleChapter = parts.slice(1, parts.length).join(' ')
-      chapter.push({
-        id: parts[0],
-        content: ruleChapter
-      })
-    })
-    return chapter
-  } catch (e) {
-    console.log('Error:', e.stack)
-  }
-}
-
-app.get('/api/chapter', (request, response) => {
-  const getChapter = readContents()
-  response.json(getChapter)
-})
+// app.get('/api/chapter', (request, response) => {
+//   const getChapter = readContents()
+//   response.json(getChapter)
+// })
 
 app.get('/api/rules', (request, response) => {
   const getRules = readRules()
   response.json(getRules)
 })
-const PORT = 3001
+
+const PORT = 3002
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
