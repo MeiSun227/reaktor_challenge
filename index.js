@@ -15,7 +15,7 @@ const readRules = () => {
   const found = gameRules.match(regEx)
 
   // get chapter pattern
-  const chapterRegex = /^[0-9]*\.\s.*/gmi
+  const chapterRegex = /^[0-9]{3}\.\s.*/gmi
   const foundChapters = gameRules.match(chapterRegex)
 
   const Chapters = []
@@ -47,9 +47,16 @@ const readRules = () => {
   return Chapters
 }
 
-// app.get('/api/chapter', (request, response) => {
-//   const getChapter = readContents()
-//   response.json(getChapter)
+app.get('/api/chapters', (request, response) => {
+  const getChapter = readRules()
+  const chapterTitles = getChapter.map(c => {
+    return {
+      id: c.id,
+      chapter: c.chapter
+    }
+  })
+  response.json(chapterTitles)
+})
 
 app.get('/api/rules', (request, response) => {
   const getRules = readRules()
@@ -58,4 +65,3 @@ app.get('/api/rules', (request, response) => {
 
 const PORT = 3005
 app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
