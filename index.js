@@ -7,7 +7,7 @@ const cors = require('cors')
 app.use(cors())
 
 // regex pattern
-const readRules = () => {
+const GetChapters = () => {
   // get rules pattern
   const data = fs.readFileSync('gameRules.txt', 'utf8')
   const gameRules = data.split('Glossary')[1]
@@ -48,7 +48,7 @@ const readRules = () => {
 }
 
 app.get('/api/chapters', (request, response) => {
-  const getChapter = readRules()
+  const getChapter = GetChapters()
   const chapterTitles = getChapter.map(c => {
     return {
       id: c.id,
@@ -58,10 +58,30 @@ app.get('/api/chapters', (request, response) => {
   response.json(chapterTitles)
 })
 
-app.get('/api/rules', (request, response) => {
-  const getRules = readRules()
-  response.json(getRules)
+app.get('/api/chapter/:id', (request, response) => {
+  const id = request.params.id + '.'
+  const chapters = GetChapters()
+  const chapter = chapters.filter(c => c.id === id)
+  response.json(chapter)
+})
+
+app.post('/api/search', (request, response) => {
+  const search = request.query.search
+  console.log(request.query.search)
+  console.log(search)
+  const chapters = GetChapters()
+  const rulesArr = []
+  chapters.forEach(c => { c.rules.forEach(r => rulesArr.push(r)) })
+  const searchRules = rulesArr.filter(r => r.content.toUpperCase().includes(search.toUpperCase()))
+  const searchResult = searchRules.map(r => {
+    return {
+      id: r.id,
+      content: r.content
+    }
+  })
+  response.json(searchResult)
 })
 
 const PORT = 3005
 app.listen(PORT)
+console.log(PORT)
