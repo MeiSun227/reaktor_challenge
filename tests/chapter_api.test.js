@@ -10,6 +10,9 @@ test('chapters are returned as json', async () => {
 })
 
 test('search returns correct rules', async () => {
+  await api
+    .get('/api/chapters')
+    .expect(200)
   const response = await api
     .post('/api/chapters/search?term=commander')
     .expect(200)

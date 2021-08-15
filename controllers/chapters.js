@@ -3,6 +3,7 @@ const GetChapters = require('../helpers/ruleHelper')
 
 chapterRouter.get('/', async (request, response) => {
     const chapters = await GetChapters()
+    request.app.locals.chapters = chapters
     const chapterTitles = chapters.map(c => {
         return {
             id: c.id,
@@ -15,14 +16,14 @@ chapterRouter.get('/', async (request, response) => {
 chapterRouter.get('/:id', async (request, response) => {
     console.log('Get rules')
     const id = request.params.id + '.'
-    const chapters = await GetChapters()
+    const chapters = request.app.locals.chapters
     const chapter = chapters.filter(c => c.id === id)
     response.json(chapter[0])
 })
 
 chapterRouter.post('/search', async (request, response) => {
     const search = request.query.term
-    const chapters = await GetChapters()
+    const chapters = request.app.locals.chapters
     const rulesArr = []
     chapters.forEach(c => { c.rules.forEach(r => rulesArr.push(r)) })
     const searchRules = rulesArr.filter(r => r.content.toUpperCase().includes(search.toUpperCase()))
